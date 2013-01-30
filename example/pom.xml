@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>pt.ist.bennu</groupId>
+		<artifactId>bennu-project</artifactId>
+		<version>2.0-SNAPSHOT</version>
+	</parent>
+
+	<groupId>pt.ist.bennu</groupId>
+	<artifactId>bennu-renderers-example</artifactId>
+	<version>2.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<name>Bennu Framework Renderers Infrastructure Example</name>
+
+	<properties>
+		<version.pt.ist.bennu.bennu-core>2.0-SNAPSHOT</version.pt.ist.bennu.bennu-core>
+		<version.pt.ist.bennu.bennu-dispatch>2.0-SNAPSHOT</version.pt.ist.bennu.bennu-dispatch>
+		<version.pt.ist.bennu.bennu-renderers>2.0-SNAPSHOT</version.pt.ist.bennu.bennu-renderers>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>pt.ist.bennu</groupId>
+			<artifactId>bennu-core</artifactId>
+			<version>${version.pt.ist.bennu.bennu-core}</version>
+		</dependency>
+		<dependency>
+			<groupId>pt.ist.bennu</groupId>
+			<artifactId>bennu-dispatch</artifactId>
+			<version>${version.pt.ist.bennu.bennu-dispatch}</version>
+		</dependency>
+		<dependency>
+			<groupId>pt.ist.bennu</groupId>
+			<artifactId>bennu-renderers</artifactId>
+			<version>${version.pt.ist.bennu.bennu-renderers}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-servlet-api</artifactId>
+			<version>7.0.28</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-jsp-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>fenix-ashes-maven-repository</id>
+			<url>https://fenix-ashes.ist.utl.pt/nexus/content/groups/fenix-ashes-maven-repository</url>
+		</repository>
+	</repositories>
+</project>
