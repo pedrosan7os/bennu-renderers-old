@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>pt.ist.bennu</groupId>
+		<artifactId>bennu-project</artifactId>
+		<version>2.0-SNAPSHOT</version>
+	</parent>
+
+	<groupId>pt.ist.bennu</groupId>
+	<artifactId>bennu-renderers</artifactId>
+	<version>2.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<name>Bennu Framework Renderers Infrastructure</name>
+
+	<properties>
+		<version.pt.ist.bennu.bennu-core>2.0-SNAPSHOT</version.pt.ist.bennu.bennu-core>
+		<version.pt.ist.bennu.bennu-dispatch>2.0-SNAPSHOT</version.pt.ist.bennu.bennu-dispatch>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>pt.ist.bennu</groupId>
+			<artifactId>bennu-core</artifactId>
+			<version>${version.pt.ist.bennu.bennu-core}</version>
+		</dependency>
+		<dependency>
+			<groupId>pt.ist.bennu</groupId>
+			<artifactId>bennu-dispatch</artifactId>
+			<version>${version.pt.ist.bennu.bennu-dispatch}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>javax.servlet.jsp-api</artifactId>
+			<version>2.3.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jdom</groupId>
+			<artifactId>jdom</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>struts</groupId>
+			<artifactId>struts</artifactId>
+			<version>1.2.7</version>
+		</dependency>
+		<dependency>
+			<groupId>pt.ist</groupId>
+			<artifactId>html-entities</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.libphonenumber</groupId>
+			<artifactId>libphonenumber</artifactId>
+			<version>5.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.7.1</version>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>fenix-ashes-maven-repository</id>
+			<url>https://fenix-ashes.ist.utl.pt/nexus/content/groups/fenix-ashes-maven-repository</url>
+		</repository>
+	</repositories>
+</project>

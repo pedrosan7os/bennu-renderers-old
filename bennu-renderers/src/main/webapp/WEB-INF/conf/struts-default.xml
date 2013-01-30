@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts-config PUBLIC
+      "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN"
+      "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+<struts-config>
+
+	<!-- ========== Data Source Configuration =============================== -->
+	<data-sources />
+
+	<!-- ========== Form Bean Definitions ================================== -->
+	<form-beans type="org.apache.struts.action.ActionFormBean">
+	</form-beans>
+
+	<!-- ========== Global Exception Definitions ============================== -->
+	<global-exceptions>
+	</global-exceptions>
+
+	<!-- ========== Global Forward Definitions =============================== -->
+	<global-forwards type="org.apache.struts.action.ActionForward">
+	</global-forwards>
+
+	<!-- ========== Action Mapping Definitions =============================== -->
+	<action-mappings type="org.apache.struts.action.ActionMapping">
+	</action-mappings>
+
+	<!-- ========== Controller Configuration ================================ -->
+	<controller processorClass="pt.ist.bennu.renderers.core.plugin.SimpleRenderersRequestProcessor" />
+
+	<!-- ========== Message Resources Definitions ============================ -->
+
+	<!-- ========== Plug Ins Configuration ================================= -->
+	<plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+		<set-property property="pathnames" value="/WEB-INF/validator-rules.xml" />
+	</plug-in>
+	<plug-in className="pt.ist.bennu.renderers.struts.StrutsAnnotationsPlugIn" />	
+	<plug-in className="pt.ist.bennu.renderers.core.plugin.RenderersPlugin">
+		<set-property property="metaObjectFactory" value="pt.ist.bennu.renderers.extensions.factories.FenixMetaObjectFactory" />
+		<set-property property="schemaFactory" value="pt.ist.bennu.renderers.extensions.factories.FenixSchemaFactory" />
+	</plug-in>
+</struts-config>

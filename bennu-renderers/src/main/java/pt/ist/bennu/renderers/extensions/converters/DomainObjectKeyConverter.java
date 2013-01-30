@@ -1,0 +1,32 @@
+package pt.ist.bennu.renderers.extensions.converters;
+
+import pt.ist.bennu.renderers.core.components.converters.ConversionException;
+import pt.ist.bennu.renderers.core.components.converters.Converter;
+import pt.ist.fenixframework.DomainObject;
+import pt.ist.fenixframework.pstm.Transaction;
+
+public class DomainObjectKeyConverter extends Converter {
+	public static final String NULL_VALUE_MARKER = "NULL_VALUE_MARKER";
+
+	@Override
+	public Object convert(Class type, Object value) {
+
+		if (value == null || value.equals("") || value.equals(NULL_VALUE_MARKER)) {
+			return null;
+		}
+		int index = ((String) value).indexOf(":");
+
+		final String key = index > 0 ? ((String) value).substring(index + 1) : (String) value;
+		try {
+			final long oid = Long.parseLong(key);
+			return Transaction.getObjectForOID(oid);
+		} catch (NumberFormatException e) {
+			throw new ConversionException("invalid oid in key: " + key, e);
+		}
+	}
+
+	public static String code(final DomainObject object) {
+		return Long.toString(object.getOID());
+	}
+
+}
