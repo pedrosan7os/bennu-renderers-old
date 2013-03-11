@@ -14,9 +14,10 @@ import javax.servlet.annotation.HandlesTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pt.ist.bennu.core.domain.groups.AuthorizationException;
-import pt.ist.bennu.core.domain.groups.PersistentGroup;
+import pt.ist.bennu.core.domain.exceptions.AuthorizationException;
+import pt.ist.bennu.core.domain.groups.BennuGroup;
 import pt.ist.bennu.dispatch.model.ApplicationInfo;
+import pt.ist.bennu.dispatch.model.BundleDetails;
 import pt.ist.bennu.dispatch.model.FunctionalityInfo;
 import pt.ist.bennu.renderers.annotation.Mapping;
 import pt.ist.bennu.renderers.annotation.Renderer;
@@ -32,102 +33,102 @@ import com.google.common.base.Strings;
 
 @HandlesTypes({ Mapping.class, Renderer.class, Renderers.class })
 public class RenderersAnnotationProcessor implements ServletContainerInitializer {
-	private static final Logger logger = LoggerFactory.getLogger(RenderersAnnotationProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(RenderersAnnotationProcessor.class);
 
-	private static Map<String, String> forwards = new HashMap<>();
+    private static Map<String, String> forwards = new HashMap<>();
 
-	private static Map<String, String> authorizations = new HashMap<>();
+    private static Map<String, String> authorizations = new HashMap<>();
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public void onStartup(Set<Class<?>> classes, ServletContext context) throws ServletException {
-		if (classes != null) {
-			Map<Class<?>, ApplicationInfo> apps = new HashMap<>();
-			for (Class<?> type : classes) {
-				Mapping mapping = type.getAnnotation(Mapping.class);
-				if (mapping != null) {
-					StrutsAnnotationsPlugIn.registerMapping(type);
+    @Override
+    @SuppressWarnings("unchecked")
+    public void onStartup(Set<Class<?>> classes, ServletContext context) throws ServletException {
+        if (classes != null) {
+            Map<Class<?>, ApplicationInfo> apps = new HashMap<>();
+            for (Class<?> type : classes) {
+                Mapping mapping = type.getAnnotation(Mapping.class);
+                if (mapping != null) {
+                    StrutsAnnotationsPlugIn.registerMapping(type);
 
-					for (Method method : type.getMethods()) {
-						Functionality functionality = method.getAnnotation(Functionality.class);
-						if (functionality != null) {
-							extractFunctionality(apps, functionality, method);
-							String function =
-									functionality.app().getAnnotation(Application.class).path() + "/" + functionality.path();
-							forwards.put(function, mapping.path() + ".do?method=" + method.getName());
-							authorizations.put(function, functionality.group());
-						}
-					}
-				}
+                    for (Method method : type.getMethods()) {
+                        Functionality functionality = method.getAnnotation(Functionality.class);
+                        if (functionality != null) {
+                            extractFunctionality(apps, functionality, method);
+                            String function =
+                                    functionality.app().getAnnotation(Application.class).path() + "/" + functionality.path();
+                            forwards.put(function, mapping.path() + ".do?method=" + method.getName());
+                            authorizations.put(function, functionality.group());
+                        }
+                    }
+                }
 
-				Renderer renderer = type.getAnnotation(Renderer.class);
-				if (renderer != null) {
-					processRenderer((Class<? extends AbstractRenderer>) type, renderer);
-				}
-				Renderers renderers = type.getAnnotation(Renderers.class);
-				if (renderers != null) {
-					for (Renderer innerRenderer : renderers.value()) {
-						processRenderer((Class<? extends AbstractRenderer>) type, innerRenderer);
-					}
-				}
-			}
-			for (ApplicationInfo application : apps.values()) {
-				AppServer.registerApp(application);
-			}
-		}
-	}
+                Renderer renderer = type.getAnnotation(Renderer.class);
+                if (renderer != null) {
+                    processRenderer((Class<? extends AbstractRenderer>) type, renderer);
+                }
+                Renderers renderers = type.getAnnotation(Renderers.class);
+                if (renderers != null) {
+                    for (Renderer innerRenderer : renderers.value()) {
+                        processRenderer((Class<? extends AbstractRenderer>) type, innerRenderer);
+                    }
+                }
+            }
+            for (ApplicationInfo application : apps.values()) {
+                AppServer.registerApp(application);
+            }
+        }
+    }
 
-	private void extractFunctionality(Map<Class<?>, ApplicationInfo> apps, Functionality functionality, Method method) {
-		if (!apps.containsKey(functionality.app())) {
-			extractApp(apps, functionality.app());
-		}
-		apps.get(functionality.app()).addFunctionality(
-				new FunctionalityInfo(functionality.bundle(), functionality.title(), functionality.description(), functionality
-						.path(), functionality.group()));
-	}
+    private void extractFunctionality(Map<Class<?>, ApplicationInfo> apps, Functionality functionality, Method method) {
+        if (!apps.containsKey(functionality.app())) {
+            extractApp(apps, functionality.app());
+        }
+        BundleDetails details = new BundleDetails(functionality.bundle(), functionality.title(), functionality.description());
+        apps.get(functionality.app()).addFunctionality(
+                new FunctionalityInfo(functionality.path(), functionality.group(), details));
+    }
 
-	private void extractApp(Map<Class<?>, ApplicationInfo> apps, Class<?> app) {
-		Application application = app.getAnnotation(Application.class);
-		if (application != null) {
-			apps.put(app, new ApplicationInfo(application.bundle(), application.title(), application.description(),
-					"render.do?function=" + application.path(), application.group()));
-		} else {
-			throw new Error();
-		}
-	}
+    private void extractApp(Map<Class<?>, ApplicationInfo> apps, Class<?> app) {
+        Application application = app.getAnnotation(Application.class);
+        if (application != null) {
+            BundleDetails details = new BundleDetails(application.bundle(), application.title(), application.description());
+            apps.put(app, new ApplicationInfo("render.do?function=" + application.path(), application.group(), details));
+        } else {
+            throw new Error();
+        }
+    }
 
-	private void processRenderer(Class<? extends AbstractRenderer> type, Renderer renderer) {
-		if (logger.isWarnEnabled()) {
-			if (hasRenderer(renderer.layout(), renderer.type(), renderer.mode())) {
-				logger.warn(String.format("[%s] duplicated definition for type '%s' and layout '%s'", renderer.mode().name(),
-						renderer.type(), renderer.layout()));
-			}
-		}
-		if (logger.isDebugEnabled()) {
-			logger.debug(String.format("[%s] registering renderer: %s for type '%s' and layout '%s'", renderer.mode().name(),
-					type.getName(), renderer.type().getName(), renderer.layout()));
-		}
-		Properties properties = new Properties();
-		for (RendererProperty property : renderer.properties()) {
-			properties.setProperty(property.name(), property.value());
-		}
-		RenderKit.getInstance().registerRenderer(renderer.mode(), renderer.type(),
-				Strings.isNullOrEmpty(renderer.layout()) ? null : renderer.layout(), type, properties);
-	}
+    private void processRenderer(Class<? extends AbstractRenderer> type, Renderer renderer) {
+        if (logger.isWarnEnabled()) {
+            if (hasRenderer(renderer.layout(), renderer.type(), renderer.mode())) {
+                logger.warn(String.format("[%s] duplicated definition for type '%s' and layout '%s'", renderer.mode().name(),
+                        renderer.type(), renderer.layout()));
+            }
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("[%s] registering renderer: %s for type '%s' and layout '%s'", renderer.mode().name(),
+                    type.getName(), renderer.type().getName(), renderer.layout()));
+        }
+        Properties properties = new Properties();
+        for (RendererProperty property : renderer.properties()) {
+            properties.setProperty(property.name(), property.value());
+        }
+        RenderKit.getInstance().registerRenderer(renderer.mode(), renderer.type(),
+                Strings.isNullOrEmpty(renderer.layout()) ? null : renderer.layout(), type, properties);
+    }
 
-	private static boolean hasRenderer(String layout, Class<?> type, RenderMode mode) {
-		try {
-			return RenderKit.getInstance().getExactRendererDescription(mode, type, layout) != null;
-		} catch (NoRendererException e) {
-			return false;
-		}
-	}
+    private static boolean hasRenderer(String layout, Class<?> type, RenderMode mode) {
+        try {
+            return RenderKit.getInstance().getExactRendererDescription(mode, type, layout) != null;
+        } catch (NoRendererException e) {
+            return false;
+        }
+    }
 
-	public static String resolveForward(String function) throws AuthorizationException {
-		if (authorizations.containsKey(function)) {
-			PersistentGroup.parse(authorizations.get(function)).verify();
-			return forwards.get(function);
-		}
-		throw AuthorizationException.badAccessGroupConfiguration();
-	}
+    public static String resolveForward(String function) throws AuthorizationException {
+        if (authorizations.containsKey(function)) {
+            BennuGroup.parse(authorizations.get(function)).verify();
+            return forwards.get(function);
+        }
+        throw AuthorizationException.badAccessGroupConfiguration();
+    }
 }
